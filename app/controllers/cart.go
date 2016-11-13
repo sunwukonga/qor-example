@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"log"
 	//	"html/template"
 	//	"strings"
 
@@ -22,8 +23,14 @@ func CartShow(ctx *gin.Context) {
 	DB(ctx).Preload("Product").Preload("Color").Preload("SizeVariations.Size").First(&colorVariation)
 
 	sessionStorer = auth.NewSessionStorer(ctx.Writer, ctx.Request).(*auth.SessionStorer)
-	if cartText, ok := sessionStorer.Get("session_cart"); ok {
+	if cartText, ok := sessionStorer.Get(SessionCartKey); ok {
+		log.Printf("Cart from session: %v", cartText)
 		json.Unmarshal([]byte(cartText), &cart)
+	} else {
+		log.Printf("Could not get key from session.")
+	}
+	if yomumma, ok := sessionStorer.Get(YomummaKey); ok {
+		log.Printf("We got the message: %v", yomumma)
 	}
 
 	config.View.Funcs(funcsMap(ctx)).Execute(
